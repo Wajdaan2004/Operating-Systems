@@ -18,7 +18,7 @@ static void ta_process(int assignment_no, const double *grades, int count)
     fflush(stdout);
 }
 
-/* GradTA process: handles one chapter by creating one TA per assignment. */
+/* GradTA process: creates one TA per assignment, one at a time, so output is ordered. */
 static void grad_ta_process(int chapter, const double grades[][ASSIGNMENTS_PER_CHAPTER],
                             int students)
 {
@@ -37,9 +37,7 @@ static void grad_ta_process(int chapter, const double grades[][ASSIGNMENTS_PER_C
             ta_process(assignment_no, column, students);
             exit(EXIT_SUCCESS);
         }
-    }
-
-    for (int a = 0; a < ASSIGNMENTS_PER_CHAPTER; a++) {
+        /* Wait for this TA to finish before creating the next one. */
         wait(NULL);
     }
     exit(EXIT_SUCCESS);
@@ -87,7 +85,7 @@ int main(int argc, char *argv[])
 
     int chapters = total_cols / ASSIGNMENTS_PER_CHAPTER;
 
-    /* Teacher creates one GradTA process per chapter. */
+    /* Teacher creates one GradTA per chapter, one at a time, so chapters print in order. */
     for (int ch = 0; ch < chapters; ch++) {
         pid_t pid = fork();
         if (pid < 0) {
@@ -103,9 +101,7 @@ int main(int argc, char *argv[])
             }
             grad_ta_process(ch, local, students);
         }
-    }
-
-    for (int ch = 0; ch < chapters; ch++) {
+        /* Wait for this chapter's GradTA to finish before starting the next. */
         wait(NULL);
     }
 
