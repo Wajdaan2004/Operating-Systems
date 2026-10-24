@@ -34,7 +34,7 @@ static int writeOutput(const char *command, const char *output)
         return -1;
     }
     fprintf(fp, "The output of: %s : is\n", command);
-    fprintf(fp, ">>>>>>>>>>>>>>>\n%s<<<<<<<<<<<<<<<\n", output);
+    fprintf(fp, ">>>>>>>>>>>>>>>>\n%s<<<<<<<<<<<<<<<<\n", output);  /* copy this line from the spec */
     fclose(fp);
     return 0;
 }
