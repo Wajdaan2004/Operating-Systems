@@ -1,0 +1,6 @@
+echo Hello_from_single_command
+echo one two three four | wc -w
+seq 3 5 | sort -r
+invalid_command_xyz
+echo alpha beta gamma | tr a-z A-Z
+cat /etc/passwd | grep bash
