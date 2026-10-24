@@ -453,6 +453,7 @@ int main(int argc, char *argv[])
             perror("fork");
             close(pfd[0]);
             close(pfd[1]);
+            fprintf(stderr, "Could not start manager for job %d; stopping\n", j + 1);
             break;
         }
         if (mgr == 0) {
