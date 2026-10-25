@@ -43,15 +43,15 @@ static void grad_ta_process(int chapter, const double grades[][ASSIGNMENTS_PER_C
 int main(int argc, char *argv[])
 {
     if (argc != 2) {
-        fprintf(stderr, "Usage: %s <grades_file>\n", argv[0]);
-        return EXIT_FAILURE;
-    }
+    printf("Usage: ./assignment_average [sample_in_grades.txt]\n");
+    return EXIT_FAILURE;
+}
 
     FILE *fp = fopen(argv[1], "r");
     if (fp == NULL) {
-        perror("fopen");
-        return EXIT_FAILURE;
-    }
+    printf("Error: cannot open file %s\n", argv[1]);
+    return 0;
+}
 
     double matrix[MAX_STUDENTS][MAX_COLS];
     int students = 0;
