@@ -17,15 +17,13 @@
 #define MAX_CMDS 2
 #define MAX_ARGS 64
 
-/* One job from the input file: either one command or two joined by '|'. */
 typedef struct {
-    char *text;                         /* original job line, used in output.txt */
-    char *buf;                          /* writable copy that argv entries point into */
-    int ncmds;                          /* 1 or 2 */
-    char *argv[MAX_CMDS][MAX_ARGS + 1]; /* NULL-terminated argument arrays */
+    char *text;                     
+    char *buf;                          
+    int ncmds;                         
+    char *argv[MAX_CMDS][MAX_ARGS + 1]; 
 } Job;
 
-/* Required function, unchanged from the assignment. */
 static int writeOutput(const char *command, const char *output)
 {
     FILE *fp = fopen("output.txt", "a");
@@ -34,12 +32,11 @@ static int writeOutput(const char *command, const char *output)
         return -1;
     }
     fprintf(fp, "The output of: %s : is\n", command);
-    fprintf(fp, ">>>>>>>>>>>>>>>>\n%s<<<<<<<<<<<<<<<<\n", output);  /* copy this line from the spec */
+    fprintf(fp, ">>>>>>>>>>>>>>>>\n%s<<<<<<<<<<<<<<<<\n", output);  
     fclose(fp);
     return 0;
 }
 
-/* Removes leading and trailing whitespace in place and returns the trimmed start. */
 static char *trim(char *s)
 {
     while (*s == ' ' || *s == '\t' || *s == '\r') {
@@ -52,7 +49,6 @@ static char *trim(char *s)
     return s;
 }
 
-/* Splits s into whitespace-separated tokens stored in argv. Returns the count, or -1. */
 static int tokenize(char *s, char **argv, int max)
 {
     int n = 0;
@@ -87,7 +83,6 @@ static void free_job(Job *job)
     job->buf = NULL;
 }
 
-/* Splits a job line on '|' and builds NULL-terminated argv arrays. Returns 0 on success. */
 static int parse_job(const char *line, Job *job)
 {
     job->ncmds = 0;
@@ -121,7 +116,6 @@ static int parse_job(const char *line, Job *job)
     return 0;
 }
 
-/* Reads from fd until EOF and returns a NULL-terminated malloc'd string. */
 static char *read_all(int fd)
 {
     size_t cap = 4096;
@@ -171,7 +165,6 @@ static void write_all(int fd, const char *s, size_t n)
     }
 }
 
-/* Waits for pid and returns its exit code (128 + signal if killed), or -1 on error. */
 static int wait_for(pid_t pid)
 {
     int status = 0;
@@ -189,7 +182,6 @@ static int wait_for(pid_t pid)
     return -1;
 }
 
-/* Reader child: copies the input file into a POSIX shared-memory object. */
 static void reader_process(const char *filename, const char *shm_name)
 {
     int in = open(filename, O_RDONLY);
@@ -244,8 +236,6 @@ static void reader_process(const char *filename, const char *shm_name)
     _exit(EXIT_SUCCESS);
 }
 
-/* Command child for a single command: stdout goes to the write end of the pipe. */
-/* Manager child: runs a job and sends its output and exit status to the parent. */
 static void manager_process(const Job *job, int result_fd)
 {
     char *output = NULL;
@@ -288,7 +278,6 @@ static void manager_process(const Job *job, int result_fd)
             _exit(EXIT_FAILURE);
         }
         if (c1 == 0) {
-            /* Command Child 1: stdout -> command pipe. */
             close(cmd_pipe[0]);
             close(out_pipe[0]);
             close(out_pipe[1]);
@@ -305,7 +294,6 @@ static void manager_process(const Job *job, int result_fd)
             _exit(EXIT_FAILURE);
         }
         if (c2 == 0) {
-            /* Command Child 2: stdin <- command pipe, stdout -> output pipe. */
             close(cmd_pipe[1]);
             close(out_pipe[0]);
             dup2(cmd_pipe[0], STDIN_FILENO);
@@ -326,7 +314,6 @@ static void manager_process(const Job *job, int result_fd)
         codes[1] = wait_for(c2);
     }
 
-    /* Send the command output, then the exit-status report, to the parent. */
     const char *text = (output != NULL) ? output : "";
     write_all(result_fd, text, strlen(text));
     dprintf(result_fd, "[Process status]\n");
@@ -346,13 +333,11 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    /* Start with a fresh output file so repeated runs don't append old results. */
     remove(OUTPUT_FILE);
 
     char shm_name[64];
     snprintf(shm_name, sizeof shm_name, "%s%d", SHM_PREFIX, (int)getpid());
 
-    /* Parent asks the reader child to load the input file into shared memory. */
     pid_t reader = fork();
     if (reader < 0) {
         perror("fork");
@@ -367,7 +352,6 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    /* Parent copies the shared-memory contents into a heap buffer. */
     int fd = shm_open(shm_name, O_RDONLY, 0);
     if (fd < 0) {
         perror("shm_open");
@@ -404,7 +388,6 @@ int main(int argc, char *argv[])
     close(fd);
     shm_unlink(shm_name);
 
-    /* Split the text into jobs, one per line, in file order. */
     Job *jobs = calloc(MAX_JOBS, sizeof *jobs);
     if (jobs == NULL) {
         perror("calloc");
@@ -440,7 +423,6 @@ int main(int argc, char *argv[])
     }
     free(text);
 
-    /* Run jobs one by one so results are written in file order. */
     for (int j = 0; j < njobs; j++) {
         int pfd[2];
         if (pipe(pfd) < 0) {
