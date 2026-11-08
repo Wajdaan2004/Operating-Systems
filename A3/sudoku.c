@@ -80,6 +80,11 @@ static int read_grid(const char *filename)
         }
     }
     fclose(fp);
+
+    if (count != SIZE * SIZE) {
+        fprintf(stderr, "File does not contain a 9x9 grid (found %d digits)\n", count);
+        return 0;
+    }
     return 1;
 }
 
