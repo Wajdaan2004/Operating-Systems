@@ -11,12 +11,11 @@ typedef struct {
     unsigned int seed;
 } worker_arg_t;
 
-static long long inside_count = 0;              
+static long long inside_count = 0;
 static pthread_mutex_t count_lock = PTHREAD_MUTEX_INITIALIZER;
 
 static double random_double(unsigned int *seed)
 {
-
     return (double)rand_r(seed) / ((double)RAND_MAX + 1.0);
 }
 
@@ -26,7 +25,7 @@ static void *throw_darts(void *arg)
     long long local_inside = 0;
 
     for (long long i = 0; i < w->darts; i++) {
-        double x = random_double(&w->seed) * 2.0 - 1.0; 
+        double x = random_double(&w->seed) * 2.0 - 1.0;
         double y = random_double(&w->seed) * 2.0 - 1.0;
         if (x * x + y * y <= 1.0)
             local_inside++;
@@ -42,7 +41,7 @@ static void *throw_darts(void *arg)
 int main(int argc, char *argv[])
 {
     if (argc != 3) {
-        printf("usage: pi <integer value for NUMBER_OF_DARTS> <integer value for NUMBER_OF_THREADS>\n");
+        fprintf(stderr, "usage: pi <integer value for NUMBER_OF_DARTS> <integer value for NUMBER_OF_THREADS>\n");
         return 1;
     }
 
@@ -50,11 +49,11 @@ int main(int argc, char *argv[])
     int num_threads = atoi(argv[2]);
 
     if (darts < MIN_DARTS) {
-        printf("The number of darts must be >= 5000000\n");
+        fprintf(stderr, "The number of darts must be >= 5000000\n");
         return 1;
     }
     if (num_threads < MIN_THREADS) {
-        printf("The number of threads must be >= 2\n");
+        fprintf(stderr, "The number of threads must be >= 2\n");
         return 1;
     }
 
@@ -71,7 +70,7 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < num_threads; i++) {
         args[i].darts = base + (i < extra ? 1 : 0);
-        args[i].seed = seed_base + (unsigned int)i * 7919u; 
+        args[i].seed = seed_base + (unsigned int)i * 7919u;
         if (pthread_create(&tids[i], NULL, throw_darts, &args[i]) != 0) {
             fprintf(stderr, "failed to create thread %d\n", i);
             return 1;

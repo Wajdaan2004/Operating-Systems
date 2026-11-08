@@ -166,6 +166,6 @@ int main(int argc, char *argv[])
         if (!results[i])
             valid = 0;
 
-    printf("\nSudoku puzzle is %s\n", valid ? "valid" : "invalid");
+    printf("Sudoku puzzle is %s\n", valid ? "valid" : "invalid");
     return valid ? 0 : 1;
 }
