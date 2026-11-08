@@ -3,9 +3,9 @@
 #include <pthread.h>
 
 #define SIZE 9
-#define NUM_THREADS 27   /* 9 columns + 9 rows + 9 sub-grids */
+#define NUM_THREADS 27  
 
-/* structure for passing data to threads */
+
 typedef struct
 {
     int row;
@@ -13,9 +13,9 @@ typedef struct
 } parameters;
 
 int grid[SIZE][SIZE];
-int results[NUM_THREADS];   /* results[i] == 1 means unit i is valid */
+int results[NUM_THREADS];   
 
-/* Marks v as seen. Returns 0 if v is out of range 1..9 or already seen. */
+
 static int mark(int v, int seen[])
 {
     if (v < 1 || v > SIZE || seen[v])
@@ -24,7 +24,6 @@ static int mark(int v, int seen[])
     return 1;
 }
 
-/* Checks column data->column. Result index: 0..8 */
 static void *check_column(void *arg)
 {
     parameters *data = (parameters *) arg;
@@ -39,7 +38,6 @@ static void *check_column(void *arg)
     return NULL;
 }
 
-/* Checks row data->row. Result index: 9..17 */
 static void *check_row(void *arg)
 {
     parameters *data = (parameters *) arg;
@@ -54,7 +52,6 @@ static void *check_row(void *arg)
     return NULL;
 }
 
-/* Checks the 3x3 sub-grid whose top-left corner is (row, column). Result index: 18..26 */
 static void *check_subgrid(void *arg)
 {
     parameters *data = (parameters *) arg;
@@ -70,7 +67,6 @@ static void *check_subgrid(void *arg)
     return NULL;
 }
 
-/* Reads 81 digits from the file, ignoring spaces, tabs and newlines */
 static int read_grid(const char *filename)
 {
     FILE *fp = fopen(filename, "r");
@@ -133,15 +129,15 @@ int main(int argc, char *argv[])
             break;
         }
 
-        if (i < SIZE) {                       /* columns */
+        if (i < SIZE) {                    
             params[i]->row = 0;
             params[i]->column = i;
             worker = check_column;
-        } else if (i < 2 * SIZE) {            /* rows */
+        } else if (i < 2 * SIZE) {         
             params[i]->row = i - SIZE;
             params[i]->column = 0;
             worker = check_row;
-        } else {                              /* 3x3 sub-grids */
+        } else {               
             params[i]->row = ((i - 2 * SIZE) / 3) * 3;
             params[i]->column = ((i - 2 * SIZE) % 3) * 3;
             worker = check_subgrid;
@@ -156,7 +152,7 @@ int main(int argc, char *argv[])
         created++;
     }
 
-    /* Wait for every thread that was started, then release its parameters */
+  
     for (int i = 0; i < created; i++) {
         pthread_join(tids[i], NULL);
         free(params[i]);

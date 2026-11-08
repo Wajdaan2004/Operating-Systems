@@ -11,12 +11,12 @@ typedef struct {
     unsigned int seed;
 } worker_arg_t;
 
-static long long inside_count = 0;                  /* shared by all threads */
+static long long inside_count = 0;              
 static pthread_mutex_t count_lock = PTHREAD_MUTEX_INITIALIZER;
 
 static double random_double(unsigned int *seed)
 {
-    /* returns a value in [0, 1) using a per-thread seed */
+
     return (double)rand_r(seed) / ((double)RAND_MAX + 1.0);
 }
 
@@ -26,7 +26,7 @@ static void *throw_darts(void *arg)
     long long local_inside = 0;
 
     for (long long i = 0; i < w->darts; i++) {
-        double x = random_double(&w->seed) * 2.0 - 1.0;   /* [-1, 1) */
+        double x = random_double(&w->seed) * 2.0 - 1.0; 
         double y = random_double(&w->seed) * 2.0 - 1.0;
         if (x * x + y * y <= 1.0)
             local_inside++;
@@ -65,14 +65,13 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /* Split the darts as evenly as possible; the first (darts % threads) threads get one extra */
     long long base = darts / num_threads;
     long long extra = darts % num_threads;
     unsigned int seed_base = (unsigned int)time(NULL);
 
     for (int i = 0; i < num_threads; i++) {
         args[i].darts = base + (i < extra ? 1 : 0);
-        args[i].seed = seed_base + (unsigned int)i * 7919u;   /* different seed per thread */
+        args[i].seed = seed_base + (unsigned int)i * 7919u; 
         if (pthread_create(&tids[i], NULL, throw_darts, &args[i]) != 0) {
             fprintf(stderr, "failed to create thread %d\n", i);
             return 1;
