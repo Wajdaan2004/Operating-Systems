@@ -5,7 +5,6 @@
 #define SIZE 9
 #define NUM_THREADS 27  
 
-
 typedef struct
 {
     int row;
@@ -14,7 +13,6 @@ typedef struct
 
 int grid[SIZE][SIZE];
 int results[NUM_THREADS];   
-
 
 static int mark(int v, int seen[])
 {
@@ -47,7 +45,6 @@ static void *check_row(void *arg)
     for (int c = 0; c < SIZE; c++)
         if (!mark(grid[data->row][c], seen))
             valid = 0;
-
     results[SIZE + data->row] = valid;
     return NULL;
 }
@@ -62,7 +59,6 @@ static void *check_subgrid(void *arg)
         for (int c = data->column; c < data->column + 3; c++)
             if (!mark(grid[r][c], seen))
                 valid = 0;
-
     results[2 * SIZE + (data->row / 3) * 3 + data->column / 3] = valid;
     return NULL;
 }
@@ -84,11 +80,6 @@ static int read_grid(const char *filename)
         }
     }
     fclose(fp);
-
-    if (count != SIZE * SIZE) {
-        fprintf(stderr, "File does not contain a 9x9 grid (found %d digits)\n", count);
-        return 0;
-    }
     return 1;
 }
 
